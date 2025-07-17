@@ -1,0 +1,99 @@
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# User-specific files for Rider
+.idea/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Dd]Release/
+[Dd]ebugFinal/
+[Dd]ReleaseFinal/
+x64/
+x86/
+x64/Release/
+x86/Release/
+x64/Debug/
+x86/Debug/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows Installer files
+*.appx
+*.appxbundle
+
+# Windows app package directory
+AppPackages/
+
+# Windows Store app packages
+AppPackages/
+
+# Windows store app build results
+obj/
+bin/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Scaffolding
+Scaffolding/
+
+# JetBrains Rider
+.idea/
+
+# VS for Mac
+.vscode/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Build directories for Visual Studio for Mac
+.vs/
+
+# .NET Core build artifacts
+artifacts/
+bin/
+obj/
+
+# npm package
+node_modules/
+
+# VS Code directories
+.vscode/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# .NET Core build artifacts
+artifacts/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Build directories for Visual Studio for Mac
+.vs/
