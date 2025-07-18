@@ -3,6 +3,7 @@ using OpenQA.Selenium.DevTools.V85.ApplicationCache;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -17,18 +18,7 @@ public class User
     public string password { get; set; }
     public string userId { get; set; }
     public string token { get; set; }
-    public class LoginData
-    {
-        public string userName;
-        public string password;
-
-        public LoginData(string userName, string password)
-        {
-            this.userName = userName;
-            this.password = password;
-        }
-    }
-
+    
     public class UserCreateResponse
     {
         public string userID;
@@ -53,9 +43,12 @@ public class User
 
     public static async Task<User> CreateUser()
     {
-        var userName = "jednaka";
+        var userName = "milan";
         var password = "Password!123";
-        LoginData loginData = new LoginData(userName, password);
+        var loginData = new {
+            userName = userName,
+            password = password
+        };
 
         var url = $"https://bookstore.toolsqa.com/Account/v1/User";
         using var client = new HttpClient();
@@ -84,7 +77,11 @@ public class User
 
     public static async Task GenerateToken(User user)
     {
-        LoginData loginData = new LoginData(user.userName, user.password);
+        var loginData = new
+        {
+            userName = user.userName,
+            password = user.password
+        };
         var url = $"https://bookstore.toolsqa.com/Account/v1/GenerateToken";
         using var client = new HttpClient();
 
@@ -104,7 +101,11 @@ public class User
 
     public static async Task LogIn(User user)
     {
-        LoginData loginData = new LoginData(user.userName, user.password);
+        var loginData = new
+        {
+            userName = user.userName,
+            password = user.password
+        };
 
         var url = $"https://bookstore.toolsqa.com/Account/v1/Login";
         using var client = new HttpClient();
@@ -151,7 +152,7 @@ public class User
                 PropertyNameCaseInsensitive = true
             };
 
-            var getUserResponse = System.Text.Json.JsonSerializer.Deserialize<GetUserResponse>(json, options);
+            var getUserResponse = JsonConvert.DeserializeObject<GetUserResponse>(json);
             if (getUserResponse != null)
                 return getUserResponse.books;
         }
@@ -188,6 +189,12 @@ public class Book
         public string isbn { get; set; }
     }
 
+    public class BookDeleteRequest
+    {
+        public string isbn { get; set; }
+        public string userId { get; set; }
+    }
+
     public static async Task GetBook(string isbn)
     {
         string url = "https://bookstore.toolsqa.com/BookStore/v1/Book/" + isbn;
@@ -213,10 +220,6 @@ public class Book
             Console.WriteLine($"Error: {response.StatusCode}");
         }
     }
-
-
-
-
 
     public static async Task<List<Book>> GetBooks(User user)
     {
@@ -276,6 +279,7 @@ public class Book
     {
         string url = "https://bookstore.toolsqa.com/BookStore/v1/Books";
         using HttpClient client = new HttpClient();
+        
         var collectionOfBooks = new CollectionOfBooks();
         collectionOfBooks.userId = user.userId;
         collectionOfBooks.collectionOfIsbns = new List<IsbnItem>();
@@ -303,6 +307,38 @@ public class Book
         catch (Exception ex)
         {
             Console.WriteLine($"Exception: {ex.Message}");
+        }
+    }
+
+    public static async Task ReplaceBook(User user, string oldIsbn, string newIsbn)
+    {
+        var requestData = new
+        {
+            userId = user.userId,
+            isbn = newIsbn
+        };
+
+        var json = System.Text.Json.JsonSerializer.Serialize(requestData);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var request = new HttpRequestMessage(HttpMethod.Put, $"/BookStore/v1/Books/{oldIsbn}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.token);
+        request.Content = content;
+
+        HttpClient httpClient = new HttpClient
+        {
+            BaseAddress = new Uri("https://bookstore.toolsqa.com")
+        };
+        var response = await httpClient.SendAsync(request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Book ISBN replaced successfully.");
+        }
+        else
+        {
+            string errorContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Failed to replace book: {response.StatusCode}\n{errorContent}");
         }
     }
 }

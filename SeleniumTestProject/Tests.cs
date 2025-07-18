@@ -50,26 +50,32 @@ namespace TestProject
         [Test]
         public async Task TestCase2()
         {
-            User user = await User.CreateUser();
-            await User.GenerateToken(user);
-            await User.LogIn(user);
+            User user = null;
 
+            try
+            {
+                user = await User.CreateUser();
+                await User.GenerateToken(user);
+                await User.LogIn(user);
 
-            List<Book> allBooks = await Book.GetBooks(user);
-            Assert.IsTrue(allBooks.Count > 0);
+                List<Book> allBooks = await Book.GetBooks(user);
+                Assert.IsTrue(allBooks.Count > 0);
 
-            //await Book.GetBook("9781449325862");
-            await Book.AddBook(user, allBooks[0]);
-            List<Book> userBooks = await User.GetUserBooks(user);
-            Assert.IsTrue(userBooks.Count == 1);
-            Assert.IsTrue(allBooks[0].isbn ==  userBooks[0].isbn);
+                await Book.AddBook(user, allBooks[0]);
+                List<Book> userBooks = await User.GetUserBooks(user);
+                Assert.IsTrue(userBooks.Count == 1);
+                Assert.IsTrue(allBooks[0].isbn == userBooks[0].isbn);
 
-            await Book.AddBook(user, allBooks[1]);
-            userBooks = await User.GetUserBooks(user);
-            Assert.IsTrue(userBooks.Count == 1);
-            Assert.IsTrue(allBooks[1].isbn == userBooks[0].isbn);
-
-            await User.DeleteUser(user);
+                await Book.ReplaceBook(user, userBooks[0].isbn, allBooks[1].isbn);
+                userBooks = await User.GetUserBooks(user);
+                Assert.IsTrue(userBooks.Count == 1);
+                Assert.IsTrue(userBooks[0].isbn == allBooks[1].isbn);
+            }
+            finally
+            {
+                if (user != null)
+                    await User.DeleteUser(user);
+            }
         }
 
         //public void TestCase2()
