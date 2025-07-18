@@ -18,7 +18,7 @@ public class User
     public string password { get; set; }
     public string userId { get; set; }
     public string token { get; set; }
-    
+
     public class UserCreateResponse
     {
         public string userID;
@@ -45,7 +45,8 @@ public class User
     {
         var userName = "milan";
         var password = "Password!123";
-        var loginData = new {
+        var loginData = new
+        {
             userName = userName,
             password = password
         };
@@ -67,7 +68,7 @@ public class User
                 var user = new User();
                 user.userName = userName;
                 user.password = password;
-                user.userId = userResponse.userID;               
+                user.userId = userResponse.userID;
                 return user;
             }
         }
@@ -194,32 +195,7 @@ public class Book
         public string isbn { get; set; }
         public string userId { get; set; }
     }
-
-    public static async Task GetBook(string isbn)
-    {
-        string url = "https://bookstore.toolsqa.com/BookStore/v1/Book/" + isbn;
-        using HttpClient client = new HttpClient();
-
-        HttpResponseMessage response = await client.GetAsync(url);
-
-        if (response.IsSuccessStatusCode)
-        {
-            string json = await response.Content.ReadAsStringAsync();
-            //Console.WriteLine(json);
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-
-            var book = System.Text.Json.JsonSerializer.Deserialize<Book>(json, options);
-            Console.WriteLine($"Title: {book.title}, Author: {book.author}");
-
-        }
-        else
-        {
-            Console.WriteLine($"Error: {response.StatusCode}");
-        }
-    }
+      
 
     public static async Task<List<Book>> GetBooks(User user)
     {
@@ -235,14 +211,10 @@ public class Book
             {
                 string json = await response.Content.ReadAsStringAsync();
                 Console.WriteLine(json);
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
 
                 try
                 {
-                    bookResponse = System.Text.Json.JsonSerializer.Deserialize<BookResponse>(json, options);
+                    bookResponse = JsonConvert.DeserializeObject<BookResponse>(json);
                     if (bookResponse != null)
                     {
                         foreach (var book in bookResponse.books)
@@ -270,7 +242,7 @@ public class Book
         {
             Console.WriteLine($"Exception: {ex.Message}");
         }
-       
+
         return new List<Book>();
 
     }
@@ -279,7 +251,7 @@ public class Book
     {
         string url = "https://bookstore.toolsqa.com/BookStore/v1/Books";
         using HttpClient client = new HttpClient();
-        
+
         var collectionOfBooks = new CollectionOfBooks();
         collectionOfBooks.userId = user.userId;
         collectionOfBooks.collectionOfIsbns = new List<IsbnItem>();
